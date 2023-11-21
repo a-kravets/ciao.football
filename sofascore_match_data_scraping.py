@@ -1,3 +1,6 @@
+# https://pypi.org/project/selenium-wire/
+# https://www.youtube.com/watch?v=HVWNRMEH9Ro
+
 import seleniumwire
 from seleniumwire import webdriver
 from seleniumwire.utils import decode as decodesw
@@ -11,7 +14,7 @@ def use_regex(input_text):
 
 # gettig all links and responses
 def show_request_urls(driver, target_url):
-  # initializing 
+  # going to a page 
   driver.get(target_url)
   # lists for urls and responses
   urls = []
@@ -21,11 +24,22 @@ def show_request_urls(driver, target_url):
   for request in driver.requests:
     # we want to include only links that include 'api' and 'sofascore'
     # because we already know that the links we need
-    if all(value in request.url for value in ('api', 'sofascore')):
+    if all(value in request.url for value in ('api', 'sofascore')):# and \
+        #not any(value in request.url for value in ('image', 'jpg', 'logo')):
         # if we find these keywords, we proceed
         urls.append(request.url)
+        '''
+        By default selenium-wire returns body response as bytes.
 
+        The documentation says:
 
+        "The response body as bytes. If the response has no body the value of body will be empty, i.e. b''.
+        Sometimes the body may have been encoded by the server - e.g. compressed.
+        You can prevent this with the disable_encoding option.
+        To manually decode an encoded response body you can do:
+        https://stackoverflow.com/questions/67306915/selenium-wire-response-object-way-to-get-response-body-as-string-rather-than-b
+        '''
+        # decoding response
         try:
             data = decodesw(
                 request.response.body,
@@ -39,6 +53,7 @@ def show_request_urls(driver, target_url):
   return urls, resps
 
 def main():
+  # initializing our driver
   driver = webdriver.Firefox(seleniumwire_options={"disable_encoding": True})
 
   # our target url
